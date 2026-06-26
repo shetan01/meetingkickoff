@@ -30,8 +30,13 @@
   .modal h3{font-size:18px;margin-bottom:8px}
   .modal p{font-size:14px;color:var(--gray-500);margin-bottom:20px}
   .modal label{font-size:13px;font-weight:600;color:var(--gray-700);display:block;margin-bottom:6px}
-  .modal input[type="password"]{width:100%;padding:10px 14px;border:2px solid var(--gray-200);border-radius:var(--radius-sm);font-size:14px;outline:none;transition:border .2s}
-  .modal input[type="password"]:focus{border-color:var(--orange)}
+  .modal input[type="password"],.modal input[type="text"]{width:100%;padding:10px 14px;border:2px solid var(--gray-200);border-radius:var(--radius-sm);font-size:14px;outline:none;transition:border .2s}
+  .modal input[type="password"]:focus,.modal input[type="text"]:focus{border-color:var(--orange)}
+  .input-wrap{position:relative}
+  .input-wrap input{padding-right:42px}
+  .eye-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:var(--gray-400);padding:2px;line-height:1}
+  .eye-toggle:hover{color:var(--gray-700)}
+  .save-confirm{font-size:13px;color:#059669;margin-top:10px;opacity:0;transition:opacity .3s}
   .modal-actions{display:flex;gap:10px;margin-top:20px}
   .modal-actions button{flex:1;padding:10px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;border:none;transition:background .2s}
   .btn-save{background:var(--orange);color:var(--white)}
@@ -138,8 +143,12 @@
     <h3>⚙️ Settings</h3>
     <p>To use this tool, enter your API key below, or visit <a href="https://sherry-tan.vercel.app" target="_blank">sherry-tan.vercel.app</a> to connect with Sherry.</p>
     <label for="apiKeyInput">API Key</label>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
+    <div class="input-wrap">
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
+      <button class="eye-toggle" onclick="toggleKeyVisibility()" type="button" title="Show/hide key" aria-label="Toggle key visibility">👁️</button>
+    </div>
     <div id="keyStatus" class="key-status none">No key saved</div>
+    <div id="saveConfirm" class="save-confirm">✅ Key saved successfully!</div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
       <button class="btn-save" onclick="saveKey()">Save Key</button>
@@ -318,7 +327,21 @@ function saveKey() {
   } else {
     localStorage.removeItem(STORAGE_KEY);
   }
-  closeSettings();
+  const confirm = document.getElementById('saveConfirm');
+  confirm.style.opacity = '1';
+  setTimeout(() => { confirm.style.opacity = '0'; closeSettings(); }, 2000);
+}
+
+function toggleKeyVisibility() {
+  const input = document.getElementById('apiKeyInput');
+  const btn = input.nextElementSibling;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁️';
+  }
 }
 
 document.getElementById('settingsModal').addEventListener('click', function(e) {
