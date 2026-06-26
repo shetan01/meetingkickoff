@@ -395,6 +395,8 @@ Please generate a meeting opening package with three clearly labeled sections:
 
 Be specific, practical and immediately usable. No generic advice. Format each section with a bold header exactly as: **OPENING STATEMENT**, **ICEBREAKER / WARM-UP**, and **AGENDA FRAMING**.`;
 
+  const apiModel = 'claude-sonnet-4-20250514';
+
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -405,7 +407,7 @@ Be specific, practical and immediately usable. No generic advice. Format each se
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: apiModel,
         max_tokens: 1024,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }]
@@ -413,18 +415,31 @@ Be specific, practical and immediately usable. No generic advice. Format each se
     });
 
     if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
+      const errBody = await response.json().catch(() => ({}));
       if (response.status === 401) {
         throw new Error('Invalid API key. Please check your key in Settings.');
       }
-      throw new Error(err.error?.message || `API error (${response.status})`);
+      if (response.status === 403) {
+        throw new Error('Access denied. Please verify your API key has the correct permissions.');
+      }
+      if (response.status === 429) {
+        throw new Error('Rate limit reached. Please wait a moment and try again.');
+      }
+      throw new Error(errBody.error?.message || 'API request failed (status ' + response.status + '). Please try again.');
     }
 
     const data = await response.json();
-    const text = data.content?.[0]?.text || '';
+    const text = data.content && data.content[0] && data.content[0].text;
+    if (!text) {
+      throw new Error('No response received from AI. Please try again.');
+    }
     parseAndDisplay(text);
   } catch (err) {
-    showError(err.message || 'Something went wrong. Please try again.');
+    if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+      showError('Network error — could not reach the AI service. Check your internet connection and try again.');
+    } else {
+      showError(err.message || 'Something went wrong. Please try again.');
+    }
   } finally {
     btn.classList.remove('loading');
     btn.disabled = false;
