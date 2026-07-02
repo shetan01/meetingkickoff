@@ -65,9 +65,9 @@
   .form-group{margin-bottom:22px}
   .form-group label{display:block;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px}
   .form-group label .hint{font-weight:400;color:var(--gray-500);font-size:13px}
-  select,textarea{width:100%;padding:12px 14px;border:2px solid var(--gray-200);border-radius:var(--radius-sm);font-size:15px;font-family:inherit;color:var(--navy);background:var(--white);outline:none;transition:border .2s;appearance:none;-webkit-appearance:none}
+  select,textarea,.form-group input[type="text"]{width:100%;padding:12px 14px;border:2px solid var(--gray-200);border-radius:var(--radius-sm);font-size:15px;font-family:inherit;color:var(--navy);background:var(--white);outline:none;transition:border .2s;appearance:none;-webkit-appearance:none}
   select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='%236B7280'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
-  select:focus,textarea:focus{border-color:var(--orange)}
+  select:focus,textarea:focus,.form-group input[type="text"]:focus{border-color:var(--orange)}
   textarea{resize:vertical;min-height:80px}
   optgroup{font-weight:700;color:var(--navy)}
   option{font-weight:400}
@@ -248,6 +248,11 @@
       <textarea id="context" placeholder="Any specific context, challenges, or goals for this meeting?"></textarea>
     </div>
 
+    <div class="form-group">
+      <label for="meetingGoal">Meeting Goal or Target <span class="hint">(optional)</span></label>
+      <input type="text" id="meetingGoal" placeholder="What does success look like for this meeting? e.g. Align on Q3 roadmap, close the $500k deal, complete sprint planning...">
+    </div>
+
     <button class="generate-btn" id="generateBtn" onclick="generate()">
       <span class="btn-text">🚀 Generate My Kickoff</span>
       <span class="spinner"></span>
@@ -361,6 +366,7 @@ async function generate() {
   const teamSize = document.getElementById('teamSize').value;
   const duration = document.getElementById('duration').value;
   const context = document.getElementById('context').value.trim();
+  const meetingGoal = document.getElementById('meetingGoal').value.trim();
 
   if (!meetingType) {
     showError('Please select a meeting type.');
@@ -379,7 +385,7 @@ async function generate() {
   const userPrompt = `Meeting Type: ${meetingType}
 Team Energy Needed: ${energy}
 Team Size: ${teamSize}
-Meeting Duration: ${duration}${context ? `\nAdditional Context: ${context}` : ''}
+Meeting Duration: ${duration}${context ? `\nAdditional Context: ${context}` : ''}${meetingGoal ? `\nMeeting Goal or Target: ${meetingGoal}` : ''}
 
 Please generate a meeting opening package with three clearly labeled sections:
 **OPENING STATEMENT**
@@ -388,11 +394,11 @@ Please generate a meeting opening package with three clearly labeled sections:
 
   const systemPrompt = `You are an expert meeting facilitator and executive coach with 20+ years experience. Based on the meeting details provided, generate a powerful meeting opening package with these three sections:
 
-1) OPENING STATEMENT — The exact words to say to open this meeting powerfully. Should be 3-5 sentences, set the right tone for the meeting type and energy level, and make attendees feel the meeting is worth their time. Tailor completely to the meeting type.
+1) OPENING STATEMENT — The exact words to say to open this meeting powerfully. Should be 3-5 sentences, set the right tone for the meeting type and energy level, and make attendees feel the meeting is worth their time. Tailor completely to the meeting type. If a Meeting Goal or Target was provided, reference it explicitly so attendees know exactly what they're working toward.
 
 2) ICEBREAKER OR WARM-UP — A specific question, activity or energizer appropriate for this meeting type and team size. For technical/agile meetings use a quick check-in. For creative sessions use an energizing prompt. For serious announcements skip this and acknowledge the gravity instead.
 
-3) AGENDA FRAMING — How to frame what you're about to do so people understand WHY they're there and what success looks like. Should be 2-3 sentences maximum. End with a clear transition into the meeting content.
+3) AGENDA FRAMING — How to frame what you're about to do so people understand WHY they're there and what success looks like. Should be 2-3 sentences maximum. If a Meeting Goal or Target was provided, name it as the concrete definition of success for this meeting. End with a clear transition into the meeting content.
 
 Be specific, practical and immediately usable. No generic advice. Format each section with a bold header exactly as: **OPENING STATEMENT**, **ICEBREAKER / WARM-UP**, and **AGENDA FRAMING**.`;
 
